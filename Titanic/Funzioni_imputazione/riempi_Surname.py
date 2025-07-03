@@ -39,5 +39,6 @@ def riempi_Surname(df):
     # Stampa risultato
     print(f"Valori mancanti in 'Surname' prima: {mancanti_prima}")
     print(f"Valori mancanti in 'Surname' dopo:  {mancanti_dopo}")
+    print(f"Valori Surname riempiti: {mancanti_prima - mancanti_dopo}")
 
     return df

@@ -57,5 +57,6 @@ def riempi_Home_Planet(df):
 
     print(f"Valori mancanti in 'HomePlanet' prima: {mancanti_prima}")
     print(f"Valori mancanti in 'HomePlanet' dopo:  {mancanti_dopo}")
+    print(f"Valori HomePlanet riempiti: {mancanti_prima - mancanti_dopo}")
 
     return df
