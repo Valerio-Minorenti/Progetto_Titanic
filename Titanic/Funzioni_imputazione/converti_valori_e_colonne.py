@@ -35,6 +35,9 @@ def converti_valori_colonne(csv_file, output_file):
     # Creazione della feature binaria
     df['Expendures'] = (df['Expendures'] > expendures_median)
 
+    #Drop colonne spese
+    df.drop(columns=spesa_cols, inplace=True)
+
     # 7. Crea AgeGroup con pd.cut
     df['AgeGroup'] = pd.cut(
         df['Age'],
@@ -43,6 +46,8 @@ def converti_valori_colonne(csv_file, output_file):
     ).astype(str)
 
     df.loc[df['Age'].isna(), 'AgeGroup'] = 'NaN'
+
+    df.drop(columns=['Age'], inplace=True)
 
     # Salva il file Excel finale
     df.to_excel(output_file, index=False)
