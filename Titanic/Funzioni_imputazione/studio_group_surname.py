@@ -7,7 +7,7 @@ Created on Thu Jul  3 14:51:57 2025
 import pandas as pd
 
 # Caricamento del dataset
-df = pd.read_csv("C:/Users/matmi/Desktop/cartella Versionata PROGETTO SODA/Titanic/train.csv")  # metti il tuo path
+df = pd.read_csv("C:/Users/Standard/Desktop/Titanic/Titanic/train.csv")  # metti il tuo path
 
 # Estrai Group dal PassengerId
 df['Group'] = df['PassengerId'].str.split('_').str[0]
