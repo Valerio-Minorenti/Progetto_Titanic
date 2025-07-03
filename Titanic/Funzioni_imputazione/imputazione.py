@@ -10,6 +10,6 @@ def imputazione(df):
     df = riempi_VIP(df)
     df = riempi_cryo(df)
     df = riempi_cabin(df)
-    df = riempi_Destination(df)
     df = riempi_Surname(df)
+    df = riempi_Destination(df)
     return df
