@@ -200,3 +200,10 @@ deck_hp=df.groupby(['Deck','HomePlanet'])['HomePlanet'].size().unstack().fillna(
 plt.figure(figsize=(10,4))
 sns.heatmap(deck_hp.T, annot=True, fmt='g', cmap='coolwarm')
 plt.figure(figsize=(6,6))
+
+# Joint distribution of HomePlanet and Destination
+hp_dest=df.groupby(['HomePlanet','Destination'])['Destination'].size().unstack().fillna(0)
+
+# Heatmap of missing values
+plt.figure(figsize=(10,4))
+sns.heatmap(hp_dest.T, annot=True, fmt='g', cmap='coolwarm')
