@@ -8,7 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Caricamento del dataset
-df = pd.read_csv("C:/Users/matmi/Desktop/cartella Versionata PROGETTO SODA/Titanic/train.csv")
+df = pd.read_csv("C:/Users/Standard/Desktop/Titanic/Titanic/train.csv")
 
 # Estrazione del gruppo dal PassengerId
 df['Group'] = df['PassengerId'].str.split('_').str[0]
