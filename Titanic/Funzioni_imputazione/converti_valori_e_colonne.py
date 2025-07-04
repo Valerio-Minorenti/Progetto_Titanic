@@ -1,19 +1,39 @@
 import pandas as pd
 
-def converti_valori_colonne(csv_file, output_file):
-    # Legge il CSV originale
+def converti_valori_colonne(csv_file, excel_file, output_file):
+    # Percorso del file CSV
+    csv_file = 'C:/Users/dvita/Desktop/TITANIC/train.csv'
+
+    # Percorso intermedio Excel
+    excel_file = 'C:/Users/dvita/Desktop/TITANIC/train.xlsx'
+
+    # Percorso finale
+    output_file = 'tabellozza.xlsx'
+
+    # Legge il file CSV
     df = pd.read_csv(csv_file)
 
-    # Estrai il gruppo da PassengerId
+    # Salva il file in formato Excel
+    df.to_excel(excel_file, index=False)
+    print(f"Conversione completata: '{csv_file}' → '{excel_file}'")
+
+    # Riapre il file Excel
+    df = pd.read_excel(excel_file)
+
+    # Estrae il gruppo da PassengerId
     df['Group'] = df['PassengerId'].str.split('_').str[0].astype(int)
 
-    # Estrai le componenti della Cabina
-    df[['Deck', 'Num', 'Side']] = df['Cabin'].str.split('/', expand=True)
+    # Nuova feature - Group size
+    group_counts = df['Group'].value_counts()
+    df['Group_size'] = df['Group'].map(group_counts)
+
+    # Estrae le componenti della Cabina
+    df[['Deck', 'CabinNum', 'Side']] = df['Cabin'].str.split('/', expand=True)
 
     # Droppa la colonna Cabin
     df.drop(columns=['Cabin'], inplace=True)
 
-    # Estrai il cognome dalla colonna Name
+    # Estrae il cognome dalla colonna Name
     df['Surname'] = df['Name'].str.split().str[-1]
 
     # Droppa la colonna Name
@@ -26,9 +46,6 @@ def converti_valori_colonne(csv_file, output_file):
     # Calcola la spesa totale
     df['Expendures'] = df[spesa_cols].sum(axis=1)
 
-    # Crea la colonna booleana: 1 se ha speso 0, 0 altrimenti
-    df['NoSpending'] = (df['Expendures'] == 0).astype(int)
-
     # Calcolo della mediana
     expendures_median = df['Expendures'].median()
 
@@ -38,19 +55,9 @@ def converti_valori_colonne(csv_file, output_file):
     #Drop colonne spese
     df.drop(columns=spesa_cols, inplace=True)
 
-    # 7. Crea AgeGroup con pd.cut
-    df['AgeGroup'] = pd.cut(
-        df['Age'],
-        bins=[-1, 18, 25, float('inf')],
-        labels=['0-18', '19-25', '25+']
-    ).astype(str)
-
-    df.loc[df['Age'].isna(), 'AgeGroup'] = 'NaN'
-
     df.drop(columns=['Age'], inplace=True)
 
-    # Salva il file Excel finale
+    # Salva il file finale
     df.to_excel(output_file, index=False)
-    print(f"File Excel finale salvato in: '{output_file}'")
-
+    print(f"File finale salvato in: '{output_file}'")
     return df
