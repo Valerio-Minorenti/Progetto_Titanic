@@ -1,40 +1,38 @@
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
-def kfold(df, save=False, output_train='C:/Users/dvita/Desktop/TITANIC/train_split.xlsx', output_val='C:/Users/dvita/Desktop/TITANIC/val_split.xlsx'):
-    """
-    Divide il dataset in train e validation usando StratifiedKFold sul target 'Transported'.
-    
-    Args:
-        path_csv (str): percorso del file CSV originale (es. 'train.csv')
-        save (bool): se True salva i file su disco
-        output_train (str): nome file Excel per il train
-        output_val (str): nome file Excel per il validation
-
-    Returns:
-        train_df, val_df (DataFrame, DataFrame)
-    """
-    df = pd.read_csv('C:/Users/dvita/Desktop/TITANIC/train.csv')
-
-    # StratifiedKFold
+def kfold_cross_validation(
+    input_path='C:/Users/Standard/Desktop/Titanic/Titanic/train.csv',
+    output_dir='C:/Users/Standard/Desktop/Titanic/Titanic/kfold.xlsx',
+    n_splits=5,
+    save=True
+):
+    df = pd.read_csv(input_path)
     df['kfold'] = -1
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+
+    # Crea i fold
     for fold, (_, val_idx) in enumerate(skf.split(df, df['Transported'])):
         df.loc[val_idx, 'kfold'] = fold
-        break  # usa solo fold 0
 
-    # Crea i DataFrame
-    train_df = df[df['kfold'] != 0].copy().reset_index(drop=True)
-    val_df = df[df['kfold'] == 0].copy().reset_index(drop=True)
+    # Per ogni fold: separa e salva (opzionale)
+    for fold in range(n_splits):
+        train_df = df[df['kfold'] != fold].copy().reset_index(drop=True)
+        val_df = df[df['kfold'] == fold].copy().reset_index(drop=True)
 
-    train_df.drop(columns='kfold', inplace=True)
-    val_df.drop(columns='kfold', inplace=True)
+        print(f"\n🔁 Fold {fold}")
+        print(f"Train: {train_df.shape[0]} righe")
+        print(f"Validation: {val_df.shape[0]} righe")
 
-    # Salva su file (opzionale)
-    if save:
-        train_df.to_excel(output_train, index=False)
-        val_df.to_excel(output_val, index=False)
-        print(f"File salvati")
+        if save:
+            train_path = f'{output_dir}train_fold{fold}.xlsx'
+            val_path = f'{output_dir}val_fold{fold}.xlsx'
+            train_df.to_excel(train_path, index=False)
+            val_df.to_excel(val_path, index=False)
+            print(f"✅ Salvati: {train_path}, {val_path}")
 
-    return train_df, val_df
+    return df
+
+# Esegui la funzione
+df_with_folds = kfold_cross_validation()

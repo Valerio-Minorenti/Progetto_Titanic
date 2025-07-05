@@ -2,13 +2,13 @@ import pandas as pd
 
 def converti_valori_colonne(csv_file, excel_file, output_file):
     # Percorso del file CSV
-    csv_file = 'C:/Users/dvita/Desktop/TITANIC/train.csv'
+    csv_file = 'C:/Users/Standard/Desktop/Titanic/Titanic/train.csv'
 
     # Percorso intermedio Excel
-    excel_file = 'C:/Users/dvita/Desktop/TITANIC/train.xlsx'
+    excel_file = 'C:/Users/Standard/Desktop/Titanic/Titanic/Funzioni_imputazione/tabellozza.xlsx'
 
     # Percorso finale
-    output_file = 'tabellozza.xlsx'
+    output_file = 'C:/Users/Standard/Desktop/Titanic/Titanic/Funzioni_imputazione/tabellozza.xlsx'
 
     # Legge il file CSV
     df = pd.read_csv(csv_file)
