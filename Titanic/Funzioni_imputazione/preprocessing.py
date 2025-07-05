@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Percorso del file CSV
-csv_file = 'C:/Users/Standard/Desktop/Titanic/Titanic/train.csv'
+csv_file = 'C:/Users/dvita/Desktop/TITANIC/train.csv'
 
 # Legge il file CSV
 df = pd.read_csv(csv_file)
@@ -14,9 +14,6 @@ df['Group'] = df['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
 # Nuova feature - Group size
 group_counts = df['Group'].value_counts()
 df['Group_size'] = df['Group'].map(group_counts)
-
-# Estrae il cognome dalla colonna Name
-df['Surname'] = df['Name'].str.split().str[-1]
 
 palette = {True: 'green', False: 'red'}
 
@@ -47,6 +44,16 @@ sns.countplot(data=df, x='Group_size', hue='Transported', palette=palette)
 plt.title('Group size')
 plt.tight_layout()
 
+# Nuova feature - Solo
+df['Solo'] = (df['Group_size'] == 1).astype(int)
+
+# Distribuzione della feature 'Solo'
+plt.figure(figsize=(10,4))
+sns.countplot(data=df, x='Solo', hue='Transported', palette=palette)
+plt.title('Passenger travelling solo or not')
+plt.ylim([0,3000])
+plt.tight_layout()
+plt.show()
 
 # Estrae le componenti della Cabina
 df[['Deck', 'CabinNum', 'Side']] = df['Cabin'].str.split('/', expand=True)
@@ -98,6 +105,8 @@ plt.show()
 
 df['Expendures'] = df[['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']].sum(axis=1, skipna=True)
 
+# Crea la colonna booleana: 1 se ha speso 0, 0 altrimenti
+df['NoSpending'] = (df['Expendures'] == 0).astype(int)
 
 # Calcolo della mediana
 expendures_median = df['Expendures'].median()
@@ -124,19 +133,10 @@ print(transported_counts1)
 print("Conto di 'Transported' per passeggeri con Expendures > mediana:")
 print(transported_counts2)
 
-# Filtro i passeggeri con CryoSleep = False
-cryo_false = df[df['CryoSleep'] == False]
-
-# Calcola la mediana delle spese
-mediana_expendures = cryo_false['Expendures'].median()
-
-# Stampa il risultato
-print(f"Mediana delle Expendures per passeggeri con CryoSleep = False: {mediana_expendures}")
-
 # Creazione della feature binaria
 df['Expendures'] = (df['Expendures'] > expendures_median)
 
-cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP', 'Expendures']
+cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP', 'Expendures', 'NoSpending']
 
 # Prima figura con i primi 3 grafici
 plt.figure(figsize=(10, 12))
@@ -207,62 +207,3 @@ hp_dest=df.groupby(['HomePlanet','Destination'])['Destination'].size().unstack()
 # Heatmap of missing values
 plt.figure(figsize=(10,4))
 sns.heatmap(hp_dest.T, annot=True, fmt='g', cmap='coolwarm')
-
-
-# 1. Conta quante volte ogni cognome appare (escludendo NaN)
-surname_counts = df['Surname'].value_counts()
-
-# 2. Crea una colonna booleana: 1 se unico, 0 se condiviso, NaN se surname mancante
-df['UniqueSurname'] = df['Surname'].map(lambda x: 1 if pd.notna(x) and surname_counts[x] == 1 else 0)
-
-# 3. Grafico a barre con hue=Transported
-plt.figure(figsize=(6, 5))
-palette = {True: '#4CAF50', False: '#F44336'}  # Verde per True, rosso per False
-sns.countplot(data=df, x='UniqueSurname', hue='Transported', palette=palette)
-
-# 4. Etichette e layout
-plt.title('Distribuzione di Transported rispetto a unicità del cognome')
-plt.xlabel('Cognome Unico (1 = sì, 0 = no)')
-plt.ylabel('Conteggio')
-plt.xticks([0, 1], ['Condiviso', 'Unico'])
-plt.grid(axis='y', linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.show()
-
-# 2. Calcola dimensione dei gruppi
-group_sizes = df['Group'].value_counts()
-gruppi_validi = group_sizes[group_sizes >= 2].index  # gruppi con almeno 2 persone
-
-# 3. Filtra solo gruppi validi e righe con VIP non nullo
-df_valid = df[df['Group'].isin(gruppi_validi) & df['VIP'].notna()].copy()
-
-# 4. Funzione: calcola la percentuale del valore VIP più frequente nel gruppo
-def percentuale_vip_uguali(gruppo):
-    mode = gruppo['VIP'].mode()
-    if mode.empty:
-        return None
-    return (gruppo['VIP'] == mode.iloc[0]).mean()
-
-# 5. Applica funzione a ciascun gruppo valido
-percentuali = df_valid.groupby('Group').apply(percentuale_vip_uguali)
-
-# 6. Calcola la media delle percentuali
-media_percentuali_vip = round(percentuali.mean() * 100, 2)
-
-# 7. Stampa il risultato
-print(f"Percentuale media di VIP coerenti all'interno dei gruppi: {media_percentuali_vip}%")
-
-# Filtra tutti i passeggeri con CryoSleep = True
-cryosleep_true = df[df['CryoSleep'] == True]
-
-# Calcola quanti hanno Expendures == 0 all'interno di quelli in CryoSleep
-num_zero_expendures = (cryosleep_true['Expendures'] == 0).sum()
-
-# Totale passeggeri in CryoSleep
-total_cryosleep = len(cryosleep_true)
-
-# Percentuale
-percentuale = num_zero_expendures / total_cryosleep * 100
-
-# Stampa il risultato
-print(f"Percentuale di passeggeri con Expendures = 0 tra quelli con CryoSleep = True: {percentuale:.2f}%")
