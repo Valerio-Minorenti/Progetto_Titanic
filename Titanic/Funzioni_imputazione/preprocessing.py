@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Percorso del file CSV
-csv_file = 'C:/Users/dvita/Desktop/TITANIC/train.csv'
+csv_file = 'C:/Users/Standard/Desktop/Titanic/Titanic/train.csv'
 
 # Legge il file CSV
 df = pd.read_csv(csv_file)
