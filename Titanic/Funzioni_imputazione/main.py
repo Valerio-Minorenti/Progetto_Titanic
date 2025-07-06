@@ -3,20 +3,9 @@ from Funzioni_imputazione.imputazione import imputazione
 from hold import holdout_split
 
 def main():
-    # Percorso file input e output
-    excel_file = 'C:/Users/dvita/Desktop/TITANIC/train.xlsx'
-    output_train = 'C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx'
-    output_val = 'C:/Users/dvita/Desktop/TITANIC/val_holdout.xlsx'
 
     # 1) Split train/val da file iniziale
-    holdout_split(
-        input_path=excel_file,
-        train_path=output_train,
-        val_path=output_val,
-        test_size=0.2,
-        stratify_col='Transported',
-        random_state=42
-    )
+    holdout_split()
 
     # 2) Pulizia e conversione colonne, ritorna combined_df
     combined_df = converti_valori_colonne()
