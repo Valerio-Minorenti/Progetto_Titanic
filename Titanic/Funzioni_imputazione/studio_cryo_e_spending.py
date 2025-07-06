@@ -24,14 +24,24 @@ cryosleep_true_spending_false = df[(df['CryoSleep'] == True) & (df['Spending'] =
 cryosleep_false_spending_true = df[(df['CryoSleep'] == False) & (df['Spending'] == True)]
 cryosleep_false_spending_false = df[(df['CryoSleep'] == False) & (df['Spending'] == False)]
 
-# 6. Stampa i risultati
+# 6. Stampa i risultati con conteggi
 print("CryoSleep == True & Spending == True:", cryosleep_true_spending_true.shape[0])
 print("CryoSleep == True & Spending == False:", cryosleep_true_spending_false.shape[0])
 print("CryoSleep == False & Spending == True:", cryosleep_false_spending_true.shape[0])
 print("CryoSleep == False & Spending == False:", cryosleep_false_spending_false.shape[0])
 
-# 7. Percentuale di CryoSleep con spese
+# 7. Calcolo percentuali
 cryosleep_true = df[df['CryoSleep'] == True]
+cryosleep_false = df[df['CryoSleep'] == False]
+
 if not cryosleep_true.empty:
-    perc_spesa_in_cryo = (cryosleep_true_spending_true.shape[0] / cryosleep_true.shape[0]) * 100
-    print(f"Percentuale di persone in CryoSleep che hanno speso: {perc_spesa_in_cryo:.2f}%")
+    perc_ctst = (cryosleep_true_spending_true.shape[0] / cryosleep_true.shape[0]) * 100
+    perc_ctsf = (cryosleep_true_spending_false.shape[0] / cryosleep_true.shape[0]) * 100
+    print(f"Percentuale di persone in CryoSleep che hanno speso: {perc_ctst:.2f}%")
+    print(f"Percentuale di persone in CryoSleep che NON hanno speso: {perc_ctsf:.2f}%")
+
+if not cryosleep_false.empty:
+    perc_cfst = (cryosleep_false_spending_true.shape[0] / cryosleep_false.shape[0]) * 100
+    perc_cfsf = (cryosleep_false_spending_false.shape[0] / cryosleep_false.shape[0]) * 100
+    print(f"Percentuale di persone NON in CryoSleep che hanno speso: {perc_cfst:.2f}%")
+    print(f"Percentuale di persone NON in CryoSleep che NON hanno speso: {perc_cfsf:.2f}%")
