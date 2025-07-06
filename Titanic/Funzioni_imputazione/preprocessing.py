@@ -1,17 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from holdout import holdout_split
-
-# Esegui la funzione di holdout per dividere il dataset in training e validation
-holdout_split(
-    input_path='C:/Users/dvita/Desktop/TITANIC/train.xlsx',
-    train_path='C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx',
-    val_path='C:/Users/dvita/Desktop/TITANIC/val_holdout.xlsx',
-    test_size=0.2,
-    stratify_col='Transported', 
-    random_state=42
-)
 
 # Ora carichi uno dei file di output per lavorare con il DataFrame
 df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
