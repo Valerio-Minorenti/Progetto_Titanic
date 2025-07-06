@@ -29,7 +29,7 @@ def converti_valori_colonne():
     combined_df['Group'] = combined_df['PassengerId'].str.split('_').str[0].astype(int)
 
     # Group size solo su train
-    group_counts = combined_df[combined_df['IsTrain']]['Group'].value_counts()
+    group_counts = combined_df['Group'].value_counts()
     combined_df['Group_size'] = combined_df['Group'].map(group_counts)
 
     # Split Cabin
@@ -45,6 +45,9 @@ def converti_valori_colonne():
     combined_df[spesa_cols] = combined_df[spesa_cols].fillna(0)
     combined_df['Expendures'] = combined_df[spesa_cols].sum(axis=1)
 
+    # Flag per chi non ha speso nulla
+    combined_df['NoSpending'] = combined_df['Expendures'] == 0
+
     # Calcola la mediana solo sul training
     expendures_median = combined_df.loc[combined_df['IsTrain'], 'Expendures'].median()
 
@@ -57,9 +60,9 @@ def converti_valori_colonne():
         combined_df.drop(columns=['Age'], inplace=True)
 
     # === 5. Ritaglia i dataset finali ===
-    new_train = combined_df[combined_df['IsTrain']]
-    new_val   = combined_df[combined_df['IsValidation']]
-    new_test  = combined_df[combined_df['IsTest']]
+    new_train = combined_df[combined_df['IsTrain']== True].copy()
+    new_val   = combined_df[combined_df['IsValidation']== True].copy()
+    new_test  = combined_df[combined_df['IsTest']== True].copy()
 
     # === 6. Salva i file finali ===
     new_train.to_excel('C:/Users/dvita/Desktop/TITANIC/train_df.xlsx', index=False)
@@ -69,9 +72,3 @@ def converti_valori_colonne():
     print("File salvati correttamente.")
     return combined_df
 
-# Esegui la funzione per convertire i valori e le colonne
-if __name__ == "__main__":  
-    combined_df = converti_valori_colonne()
-    print("Conversione completata.")
-    print(f"Dimensioni del DataFrame combinato: {combined_df.shape}")
-    print(combined_df.head())

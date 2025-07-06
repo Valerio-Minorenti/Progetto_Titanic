@@ -1,46 +1,34 @@
 import pandas as pd
 
 def riempi_side(combined_df):
-    
-    train_df1 = combined_df[combined_df['IsTrain'] == True].copy()
-    val_df1 = combined_df[combined_df['IsTrain'] == False].copy()
+    # Separa i blocchi
+    train_df = combined_df[combined_df['IsTrain'] == True].copy()
+    val_df   = combined_df[combined_df['IsValidation'] == True].copy()
+    test_df  = combined_df[combined_df['IsTest'] == True].copy()
 
-    # === IMPUTAZIONE SIDE ===
-    CS_bef = train_df1['Side'].isna().sum()
+    # --- Imputazione TRAIN ---
+    CS_bef = train_df['Side'].isna().sum()
 
-    # Gruppi con almeno 2 membri
-    group_counts = train_df1['Group'].value_counts()
-    gruppi_con_almeno_due = group_counts[group_counts >= 2].index
+    # Imputa Side in base a Transported
+    train_df.loc[train_df['Side'].isna() & (train_df['Transported'] == True), 'Side'] = 'S'
+    train_df.loc[train_df['Side'].isna() & (train_df['Transported'] == False), 'Side'] = 'P'
 
-    # Calcola la Side più frequente per questi gruppi
-    SCS_gb = (
-        train_df1[train_df1['Group'].isin(gruppi_con_almeno_due)]
-        .groupby(['Group', 'Side'])
-        .size()
-        .unstack(fill_value=0)
-    )
-    side_mode_per_group = SCS_gb.idxmax(axis=1)
+    CS_aft = train_df['Side'].isna().sum()
+    print(f"[TRAIN] Side missing values: prima = {CS_bef}, dopo = {CS_aft}")
 
-    # Imputa Side per i gruppi con valore predominante
-    side_nan_mask = train_df1['Side'].isna()
-    group_with_mode_side = train_df1.loc[side_nan_mask, 'Group'].isin(side_mode_per_group.index)
-    SCS_index = train_df1[side_nan_mask & group_with_mode_side].index
-    train_df1.loc[SCS_index, 'Side'] = train_df1.loc[SCS_index, 'Group'].map(side_mode_per_group)
+    # --- Imputazione VAL e TEST ---
+    side_mode = train_df['Side'].mode()[0]
 
-    # Imputa tutti i rimanenti valori mancanti in Side usando Transported
-    train_df1.loc[train_df1['Side'].isna() & (train_df1['Transported'] == True), 'Side'] = 'S'
-    train_df1.loc[train_df1['Side'].isna() & (train_df1['Transported'] == False), 'Side'] = 'P'
+    val_missing_before = val_df['Side'].isna().sum()
+    val_df['Side'] = val_df['Side'].fillna(side_mode)
+    val_missing_after = val_df['Side'].isna().sum()
+    print(f"[VAL] Side missing: prima = {val_missing_before}, dopo = {val_missing_after}")
 
-    CS_aft = train_df1['Side'].isna().sum()
-    print(f"#Side missing values before: {CS_bef}")
-    print(f"#Side missing values after:  {CS_aft}")
+    test_missing_before = test_df['Side'].isna().sum()
+    test_df['Side'] = test_df['Side'].fillna(side_mode)
+    test_missing_after = test_df['Side'].isna().sum()
+    print(f"[TEST] Side missing: prima = {test_missing_before}, dopo = {test_missing_after}")
 
-    side_mode = train_df1['Side'].mode()[0]
-    # Riempie i NaN in Side nel validation set con la moda del train
-    val_df1.loc[:, 'Side'] = val_df1['Side'].fillna(side_mode)
-
-
-    # Unisce i due DataFrame
-    combined_df= pd.concat([train_df1, val_df1], ignore_index=True)
-
+    # --- Ricombina tutto ---
+    combined_df = pd.concat([train_df, val_df, test_df], ignore_index=True)
     return combined_df

@@ -1,41 +1,51 @@
 import pandas as pd
 
-def riempi_VIP(combined_df):
+def riempi_vip(combined_df):
+    # Separa i subset
+    train_df = combined_df[combined_df['IsTrain'] == True].copy()
+    val_df   = combined_df[combined_df['IsValidation'] == True].copy()
+    test_df  = combined_df[combined_df['IsTest'] == True].copy()
 
-    missing_vip_before = combined_df['VIP'].isna().sum()
-    percent_vip_before = round(missing_vip_before / len(combined_df) * 100, 2)
-    print(f"[PRIMA] Valori mancanti in 'VIP': {missing_vip_before} ({percent_vip_before}%)")
-    # Estrai il gruppo
-    combined_df['Group'] = combined_df['PassengerId'].str.split('_').str[0]
+    # === TRAIN ===
+    before_train = train_df['VIP'].isna().sum()
 
-    # Conta dimensione dei gruppi
-    group_sizes = combined_df['Group'].value_counts()
-    gruppi_validi = group_sizes[group_sizes >= 2].index
+    # Moda globale
+    vip_mode_global = train_df['VIP'].mode().iloc[0]
 
-    # Filtra solo gruppi con almeno 2 persone e VIP noto
-    df_filtrato = combined_df[combined_df['Group'].isin(gruppi_validi) & combined_df['VIP'].notna()].copy()
-
-    # Calcola la moda di VIP per ciascun gruppo (solo tra quelli validi)
-    group_vip_mode = (
-        df_filtrato.groupby('Group')['VIP']
+    # Moda per gruppi con almeno 2 persone e VIP noto
+    gruppi_vip_mode = (
+        train_df[(train_df['Group_size'] >= 2) & train_df['VIP'].notna()]
+        .groupby('Group')['VIP']
         .agg(lambda x: x.mode().iloc[0] if not x.mode().empty else pd.NA)
         .to_dict()
     )
 
-    # Imputazione per gruppo (solo dove VIP è NaN)
-    vip_nan_mask = combined_df['VIP'].isna() & combined_df['Group'].isin(group_vip_mode)
-    combined_df.loc[vip_nan_mask, 'VIP'] = combined_df.loc[vip_nan_mask, 'Group'].map(group_vip_mode)
+    # Imputazione per gruppo
+    mask_group_train = train_df['VIP'].isna() & (train_df['Group_size'] >= 2) & train_df['Group'].isin(gruppi_vip_mode)
+    train_df.loc[mask_group_train, 'VIP'] = train_df.loc[mask_group_train, 'Group'].map(gruppi_vip_mode)
 
-    # Fallback globale: usa la moda globale per i rimanenti
-    if combined_df['VIP'].isna().any():
-        vip_mode_global = combined_df['VIP'].mode().iloc[0]
-        combined_df['VIP'] = combined_df['VIP'].fillna(vip_mode_global)
+    # Resto: moda globale
+    train_df['VIP'] = train_df['VIP'].fillna(vip_mode_global)
+    after_train = train_df['VIP'].isna().sum()
+    print(f"[TRAIN] VIP mancanti prima: {before_train}, dopo: {after_train}")
 
-    # --- Qui va la tua imputazione, ad esempio:
-    # df = imputazione(df)
+    # === VALIDATION ===
+    before_val = val_df['VIP'].isna().sum()
+    mask_val = val_df['VIP'].isna() & (val_df['Group_size'] >= 2) & val_df['Group'].isin(gruppi_vip_mode)
+    val_df.loc[mask_val, 'VIP'] = val_df.loc[mask_val, 'Group'].map(gruppi_vip_mode)
+    val_df['VIP'] = val_df['VIP'].fillna(vip_mode_global)
+    after_val = val_df['VIP'].isna().sum()
+    print(f"[VAL] VIP mancanti prima: {before_val}, dopo: {after_val}")
 
-    # === DOPO L’IMPUTAZIONE ===
-    missing_vip_after = combined_df['VIP'].isna().sum()
-    percent_vip_after = round(missing_vip_after / len(combined_df) * 100, 2)
-    print(f"[DOPO]  Valori mancanti in 'VIP': {missing_vip_after} ({percent_vip_after}%)")
+    # === TEST ===
+    before_test = test_df['VIP'].isna().sum()
+    mask_test = test_df['VIP'].isna() & (test_df['Group_size'] >= 2) & test_df['Group'].isin(gruppi_vip_mode)
+    test_df.loc[mask_test, 'VIP'] = test_df.loc[mask_test, 'Group'].map(gruppi_vip_mode)
+    test_df['VIP'] = test_df['VIP'].fillna(vip_mode_global)
+    after_test = test_df['VIP'].isna().sum()
+    print(f"[TEST] VIP mancanti prima: {before_test}, dopo: {after_test}")
+
+    # Ricombina
+    combined_df = pd.concat([train_df, val_df, test_df], ignore_index=True)
     return combined_df
+             

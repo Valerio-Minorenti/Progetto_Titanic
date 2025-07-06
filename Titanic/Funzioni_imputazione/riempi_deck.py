@@ -1,5 +1,4 @@
 from collections import Counter
-import pandas as pd
 
 def riempi_deck(combined_df):
     # === IMPUTAZIONE DECK ===
