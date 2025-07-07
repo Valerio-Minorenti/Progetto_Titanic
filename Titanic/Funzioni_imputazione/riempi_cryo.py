@@ -1,20 +1,14 @@
-
-def riempi_cryo(df):
+def riempi_cryo(combined_df):
     # Conta valori mancanti PRIMA
-    cryo_nan_before = df['CryoSleep'].isna().sum()
+    cryo_nan_before = combined_df['CryoSleep'].isna().sum()
 
-    # Converte CryoSleep in tipo boolean Pandas (nullable)
-    if df['CryoSleep'].dtype != 'boolean':
-        df['CryoSleep'] = df['CryoSleep'].astype('boolean')
-
-    # 1. Riempie CryoSleep usando Expendures == 0
-    df.loc[df['CryoSleep'].isna() & (df['Expendures'] == 0), 'CryoSleep'] = True
-    df.loc[df['CryoSleep'].isna() & (df['Expendures'] > 0), 'CryoSleep'] = False
+    # Imputazione basata su NoSpending
+    combined_df.loc[combined_df['CryoSleep'].isna() & (combined_df['NoSpending'] == True),  'CryoSleep'] = 1
+    combined_df.loc[combined_df['CryoSleep'].isna() & (combined_df['Expendures'] == True), 'CryoSleep'] = 0
 
     # Conta valori mancanti DOPO
-    cryo_nan_after = df['CryoSleep'].isna().sum()
+    cryo_nan_after = combined_df['CryoSleep'].isna().sum()
 
-    # Stampa il risultato
-    print(f"CryoSleep - Valori mancanti prima: {cryo_nan_before}, dopo: {cryo_nan_after}")
+    print(f"[CryoSleep] Valori mancanti prima: {cryo_nan_before}, dopo: {cryo_nan_after}")
+    return combined_df
 
-    return df

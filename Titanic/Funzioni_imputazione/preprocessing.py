@@ -2,11 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Percorso del file CSV
-csv_file = 'C:/Users/dvita/Desktop/TITANIC/train.csv'
-
-# Leggi il file CSV
-df = pd.read_csv(csv_file)
+# Ora carichi uno dei file di output per lavorare con il DataFrame
+df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
 
 # Nuova feature - Group (presupponendo che 'PassengerId' sia nel formato '123_45')
 df['Group'] = df['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)

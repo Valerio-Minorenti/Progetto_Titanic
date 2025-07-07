@@ -1,63 +1,74 @@
 import pandas as pd
 
-def converti_valori_colonne(csv_file, excel_file, output_file):
-    # Percorso del file CSV
-    csv_file = 'C:/Users/Standard/Desktop/Titanic/Titanic/train.csv'
+def converti_valori_colonne():
 
-    # Percorso intermedio Excel
-    excel_file = 'C:/Users/Standard/Desktop/Titanic/Titanic/Funzioni_imputazione/tabellozza.xlsx'
+    # === 1. Carica i file ===
+    train_df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
+    val_df   = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/val_holdout.xlsx')
+    test_df  = pd.read_csv('C:/Users/dvita/Desktop/TITANIC/test.csv')
 
-    # Percorso finale
-    output_file = 'C:/Users/Standard/Desktop/Titanic/Titanic/Funzioni_imputazione/tabellozza.xlsx'
+    # === 2. Aggiungi flag identificativi ===
+    train_df['IsTrain'] = True
+    train_df['IsValidation'] = False
+    train_df['IsTest'] = False
 
-    # Legge il file CSV
-    df = pd.read_csv(csv_file)
+    val_df['IsTrain'] = False
+    val_df['IsValidation'] = True
+    val_df['IsTest'] = False
 
-    # Salva il file in formato Excel
-    df.to_excel(excel_file, index=False)
-    print(f"Conversione completata: '{csv_file}' → '{excel_file}'")
+    test_df['IsTrain'] = False
+    test_df['IsValidation'] = False
+    test_df['IsTest'] = True
 
-    # Riapre il file Excel
-    df = pd.read_excel(excel_file)
+    # === 3. Unisci i tre dataset ===
+    combined_df = pd.concat([train_df, val_df, test_df], ignore_index=True)
 
-    # Estrae il gruppo da PassengerId
-    df['Group'] = df['PassengerId'].str.split('_').str[0].astype(int)
+    # === 4. Feature Engineering ===
 
-    # Nuova feature - Group size
-    group_counts = df['Group'].value_counts()
-    df['Group_size'] = df['Group'].map(group_counts)
+    # Group
+    combined_df['Group'] = combined_df['PassengerId'].str.split('_').str[0].astype(int)
 
-    # Estrae le componenti della Cabina
-    df[['Deck', 'CabinNum', 'Side']] = df['Cabin'].str.split('/', expand=True)
+    # Group size solo su train
+    group_counts = combined_df['Group'].value_counts()
+    combined_df['Group_size'] = combined_df['Group'].map(group_counts)
 
-    # Droppa la colonna Cabin
-    df.drop(columns=['Cabin'], inplace=True)
+    # Split Cabin
+    combined_df[['Deck', 'CabinNum', 'Side']] = combined_df['Cabin'].str.split('/', expand=True)
+    combined_df.drop(columns=['Cabin'], inplace=True)
 
-    # Estrae il cognome dalla colonna Name
-    df['Surname'] = df['Name'].str.split().str[-1]
+    # Surname
+    combined_df['Surname'] = combined_df['Name'].str.split().str[-1]
+    combined_df.drop(columns=['Name'], inplace=True)
 
-    # Droppa la colonna Name
-    df.drop(columns=['Name'], inplace=True)
-
-    # Riempie NaN con 0 per le spese
+    # Calcolo spese
     spesa_cols = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
-    df[spesa_cols] = df[spesa_cols].fillna(0)
+    combined_df[spesa_cols] = combined_df[spesa_cols].fillna(0)
+    combined_df['Expendures'] = combined_df[spesa_cols].sum(axis=1)
 
-    # Calcola la spesa totale
-    df['Expendures'] = df[spesa_cols].sum(axis=1)
+    # Flag per chi non ha speso nulla
+    combined_df['NoSpending'] = combined_df['Expendures'] == 0
 
-    # Calcolo della mediana
-    expendures_median = df['Expendures'].median()
+    # Calcola la mediana solo sul training
+    expendures_median = combined_df.loc[combined_df['IsTrain'], 'Expendures'].median()
 
-    # Creazione della feature binaria
-    df['Expendures'] = (df['Expendures'] > expendures_median)
+    # Binarizza expendures
+    combined_df['Expendures'] = combined_df['Expendures'] > expendures_median
 
-    #Drop colonne spese
-    df.drop(columns=spesa_cols, inplace=True)
+    # Drop colonne originali spese + Age se presente
+    combined_df.drop(columns=spesa_cols, inplace=True)
+    if 'Age' in combined_df.columns:
+        combined_df.drop(columns=['Age'], inplace=True)
 
-    df.drop(columns=['Age'], inplace=True)
+    # === 5. Ritaglia i dataset finali ===
+    new_train = combined_df[combined_df['IsTrain']== True].copy()
+    new_val   = combined_df[combined_df['IsValidation']== True].copy()
+    new_test  = combined_df[combined_df['IsTest']== True].copy()
 
-    # Salva il file finale
-    df.to_excel(output_file, index=False)
-    print(f"File finale salvato in: '{output_file}'")
-    return df
+    # === 6. Salva i file finali ===
+    new_train.to_excel('C:/Users/dvita/Desktop/TITANIC/train_df.xlsx', index=False)
+    new_val.to_excel('C:/Users/dvita/Desktop/TITANIC/val_df.xlsx', index=False)
+    new_test.to_excel('C:/Users/dvita/Desktop/TITANIC/test_df.xlsx', index=False)
+
+    print("File salvati correttamente.")
+    return combined_df
+

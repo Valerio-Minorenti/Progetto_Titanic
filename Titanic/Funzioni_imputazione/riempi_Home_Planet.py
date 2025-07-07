@@ -1,21 +1,21 @@
 import pandas as pd
 
-def riempi_Home_Planet(df):
-    if 'Group' not in df.columns:
-        df['Group'] = df['PassengerId'].str.split('_').str[0].astype(int)
+def riempi_Home_Planet(combined_df):
+    if 'Group' not in combined_df.columns:
+        combined_df['Group'] = combined_df['PassengerId'].str.split('_').str[0].astype(int)
 
-    if 'Surname' not in df.columns:
-        df['Surname'] = df['Name'].str.split().str[-1]
+    if 'Surname' not in combined_df.columns:
+        combined_df['Surname'] = combined_df['Name'].str.split().str[-1]
 
     # Conta valori mancanti PRIMA
-    mancanti_prima = df['HomePlanet'].isna().sum()
+    mancanti_prima = combined_df['HomePlanet'].isna().sum()
 
     # === 1. IMPUTAZIONE PER GRUPPO ===
-    gruppi_multipli = df['Group'].value_counts()
+    gruppi_multipli = combined_df['Group'].value_counts()
     gruppi_validi = gruppi_multipli[gruppi_multipli > 1].index
 
     homeplanet_gruppo = (
-        df[df['Group'].isin(gruppi_validi)]
+        combined_df[combined_df['Group'].isin(gruppi_validi)]
         .dropna(subset=['HomePlanet'])
         .groupby('Group')['HomePlanet']
         .agg(lambda x: x.mode()[0] if x.nunique() == 1 else None)
@@ -23,40 +23,40 @@ def riempi_Home_Planet(df):
         .to_dict()
     )
 
-    df['HomePlanet'] = df.apply(
+    combined_df['HomePlanet'] = combined_df.apply(
         lambda row: homeplanet_gruppo.get(row['Group'], None)
         if pd.isna(row['HomePlanet']) else row['HomePlanet'],
         axis=1
     )
 
     # === 2. IMPUTAZIONE PER DECK ===
-    cond_deck = df['HomePlanet'].isna()
-    df.loc[cond_deck & (df['Deck'] == 'G'), 'HomePlanet'] = 'Earth'
-    df.loc[cond_deck & (df['Deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europa'
+    cond_deck = combined_df['HomePlanet'].isna()
+    combined_df.loc[cond_deck & (combined_df['Deck'] == 'G'), 'HomePlanet'] = 'Earth'
+    combined_df.loc[cond_deck & (combined_df['Deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europa'
 
     # === 3. IMPUTAZIONE PER COGNOME ===
-    cond_surname = df['HomePlanet'].isna()
+    cond_surname = combined_df['HomePlanet'].isna()
 
     # Mappa del cognome → HomePlanet più frequente
     homeplanet_surname = (
-        df.dropna(subset=['HomePlanet'])
+        combined_df.dropna(subset=['HomePlanet'])
         .groupby('Surname')['HomePlanet']
         .agg(lambda x: x.mode()[0] if not x.mode().empty else None)
         .dropna()
         .to_dict()
     )
 
-    df['HomePlanet'] = df.apply(
+    combined_df['HomePlanet'] = combined_df.apply(
         lambda row: homeplanet_surname.get(row['Surname'], row['HomePlanet'])
         if pd.isna(row['HomePlanet']) else row['HomePlanet'],
         axis=1
     )
 
     # Conta valori mancanti DOPO
-    mancanti_dopo = df['HomePlanet'].isna().sum()
+    mancanti_dopo = combined_df['HomePlanet'].isna().sum()
 
     print(f"Valori mancanti in 'HomePlanet' prima: {mancanti_prima}")
     print(f"Valori mancanti in 'HomePlanet' dopo:  {mancanti_dopo}")
     print(f"Valori HomePlanet riempiti: {mancanti_prima - mancanti_dopo}")
 
-    return df
+    return combined_df
