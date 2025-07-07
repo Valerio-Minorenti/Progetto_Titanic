@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from Funzioni_imputazione import holdout
+from holdout import holdout_split
 
 # Esegui la funzione di holdout per dividere il dataset in training e validation
 holdout_split(
