@@ -1,12 +1,17 @@
 from Funzioni_imputazione.converti_valori_e_colonne import converti_valori_colonne
 from Funzioni_imputazione.imputazione import imputazione
-from hold import holdout_split
+from Funzioni_imputazione.hold import holdout_split
 
 def main():
-    # Percorso file input e output
-    excel_file = 'C:/Users/dvita/Desktop/TITANIC/train.xlsx'
-    output_train = 'C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx'
-    output_val = 'C:/Users/dvita/Desktop/TITANIC/val_holdout.xlsx'
+    # Percorso file input e output DAVIDE
+    #excel_file = 'C:/Users/dvita/Desktop/TITANIC/train.xlsx'
+    #output_train = 'C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx'
+    #output_val = 'C:/Users/dvita/Desktop/TITANIC/val_holdout.xlsx'
+
+        # Percorso file input e output VALERIO
+    excel_file = 'C:/Users/Standard/Desktop/Titanic/Titanic/train.csv'
+    output_train = 'C:/Users/Standard/Desktop/Titanic/Titanic/train_holdout.xlsx'
+    output_val = 'C:/Users/Standard/Desktop/Titanic/Titanic/val_holdout.xlsx'
 
     # 1) Split train/val da file iniziale
     holdout_split(

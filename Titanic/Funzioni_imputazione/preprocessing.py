@@ -2,8 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Ora carichi uno dei file di output per lavorare con il DataFrame
-df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
+# Ora carichi uno dei file di output per lavorare con il DataFrame DAVIDE
+#df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
+# Ora carichi uno dei file di output per lavorare con il DataFrame VALERIO
+df = pd.read_excel('C:/Users/Standard/Desktop/Titanic/Titanic/train_holdout.xlsx')
 
 # Nuova feature - Group (presupponendo che 'PassengerId' sia nel formato '123_45')
 df['Group'] = df['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)

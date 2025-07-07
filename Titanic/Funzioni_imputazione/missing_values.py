@@ -48,10 +48,14 @@ def missing_values(combined_df):
     combined_no_set = combined_no_set.dropna()
 
 
-    # === 5. Salvataggio ===
-    train_df.to_excel('C:/Users/dvita/Desktop/TITANIC/train_imputed.xlsx', index=False)
-    val_df.to_excel('C:/Users/dvita/Desktop/TITANIC/val_imputed.xlsx', index=False)
-    test_df.to_excel('C:/Users/dvita/Desktop/TITANIC/test_imputed.xlsx', index=False)
+    # === 5. Salvataggio DAVIDE ===
+    #train_df.to_excel('C:/Users/dvita/Desktop/TITANIC/train_imputed.xlsx', index=False)
+    #val_df.to_excel('C:/Users/dvita/Desktop/TITANIC/val_imputed.xlsx', index=False)
+    #test_df.to_excel('C:/Users/dvita/Desktop/TITANIC/test_imputed.xlsx', index=False)
+    # === 5. Salvataggio VALERIO ===
+    train_df.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/train_imputed.xlsx', index=False)
+    val_df.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/val_imputed.xlsx', index=False)
+    test_df.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/test_imputed.xlsx', index=False)
 
     print("✅ File salvati con successo.")
 
