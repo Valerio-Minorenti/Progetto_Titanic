@@ -7,8 +7,13 @@ Created on Thu Jul  3 15:11:29 2025
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Caricamento del dataset
-df = pd.read_csv("C:/Users/Standard/Desktop/Titanic/Titanic/train.csv")
+# Input e caricamento del file
+path_train_csv = input("Inserisci il path del train (.csv): ")
+try:
+    df = pd.read_csv(path_train_csv)
+except FileNotFoundError:
+    print("File non trovato. Controlla il percorso o verifica che hai scritto / oppure \\.")
+    exit()
 
 # Estrazione del gruppo dal PassengerId
 df['Group'] = df['PassengerId'].str.split('_').str[0]

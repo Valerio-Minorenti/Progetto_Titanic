@@ -1,11 +1,14 @@
 import pandas as pd
 
 def converti_valori_colonne():
-
     # === 1. Carica i file ===
-    train_df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
-    val_df   = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/val_holdout.xlsx')
-    test_df  = pd.read_csv('C:/Users/dvita/Desktop/TITANIC/test.csv')
+    path_train = input("Inserisci il percorso del file TRAIN (.xlsx): ")
+    path_val   = input("Inserisci il percorso del file VALIDATION (.xlsx): ")
+    path_test  = input("Inserisci il percorso del file TEST (.csv): ")
+
+    train_df = pd.read_excel(path_train)
+    val_df   = pd.read_excel(path_val)
+    test_df  = pd.read_csv(path_test)
 
     # === 2. Aggiungi flag identificativi ===
     train_df['IsTrain'] = True
@@ -28,7 +31,7 @@ def converti_valori_colonne():
     # Group
     combined_df['Group'] = combined_df['PassengerId'].str.split('_').str[0].astype(int)
 
-    # Group size solo su train
+    # Group size
     group_counts = combined_df['Group'].value_counts()
     combined_df['Group_size'] = combined_df['Group'].map(group_counts)
 
@@ -54,28 +57,24 @@ def converti_valori_colonne():
     # Binarizza expendures
     combined_df['Expendures'] = combined_df['Expendures'] > expendures_median
 
-    # combined_df['AgeGroup'] = combined_df['Age'].apply(
-#     lambda age: 'Unknown' if pd.isna(age) else
-#                 '0-18' if age <= 18 else
-#                 '19-25' if age <= 25 else
-#                 '25+'
-# )
-
-    # Drop colonne originali spese + Age se presente
+    # Rimuove colonne originali delle spese + Age se presente
     combined_df.drop(columns=spesa_cols, inplace=True)
     if 'Age' in combined_df.columns:
         combined_df.drop(columns=['Age'], inplace=True)
 
     # === 5. Ritaglia i dataset finali ===
-    new_train = combined_df[combined_df['IsTrain']== True].copy()
-    new_val   = combined_df[combined_df['IsValidation']== True].copy()
-    new_test  = combined_df[combined_df['IsTest']== True].copy()
+    new_train = combined_df[combined_df['IsTrain'] == True].copy()
+    new_val   = combined_df[combined_df['IsValidation'] == True].copy()
+    new_test  = combined_df[combined_df['IsTest'] == True].copy()
 
-    # === 6. Salva i file finali ===
-    new_train.to_excel('C:/Users/dvita/Desktop/TITANIC/train_df.xlsx', index=False)
-    new_val.to_excel('C:/Users/dvita/Desktop/TITANIC/val_df.xlsx', index=False)
-    new_test.to_excel('C:/Users/dvita/Desktop/TITANIC/test_df.xlsx', index=False)
+    # === 6. Salva i file finali (output dinamico) ===
+    output_train = input("Inserisci il percorso per salvare il TRAIN modificato (.xlsx): ")
+    output_val   = input("Inserisci il percorso per salvare il VALIDATION modificato (.xlsx): ")
+    output_test  = input("Inserisci il percorso per salvare il TEST modificato (.xlsx): ")
+
+    new_train.to_excel(output_train, index=False)
+    new_val.to_excel(output_val, index=False)
+    new_test.to_excel(output_test, index=False)
 
     print("File salvati correttamente.")
     return combined_df
-

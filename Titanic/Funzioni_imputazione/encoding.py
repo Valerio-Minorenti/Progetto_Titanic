@@ -1,29 +1,24 @@
 import pandas as pd
 
-def encoding_statico(combined_df):
+def encoding_dinamico(combined_df):
     """
-    Applica One-Hot Encoding al dataset completo `combined_df` 
-    (contenente le colonne booleane: is_train, is_val, is_test),
-    e restituisce train, val e test codificati separatamente.
-
-    Salva anche i tre dataset codificati in formato CSV.
+    Applica One-Hot Encoding al dataset completo `combined_df`, 
+    e salva i file codificati in percorsi forniti dinamicamente dall'utente.
+    Restituisce train, val e test codificati separatamente.
     """
 
+    print("\nColonne presenti nel dataset:")
     print(combined_df.columns)
 
-    # === Percorsi output ===
-    #output_train = 'C:/Users/Standard/Desktop/Titanic/Titanic/train_encoded.csv'
-    #output_val = 'C:/Users/Standard/Desktop/Titanic/Titanic/val_encoded.csv'
-    #output_test = 'C:/Users/Standard/Desktop/Titanic/Titanic/test_encoded.csv'
+    # === Percorsi output dinamici ===
+    output_train = input("\nInserisci il percorso per salvare il TRAIN codificato (.xlsx): ")
+    output_val   = input("Inserisci il percorso per salvare il VALIDATION codificato (.xlsx): ")
+    output_test  = input("Inserisci il percorso per salvare il TEST codificato (.xlsx): ")
 
-    output_train = 'C:/Users/dvita/Desktop/TITANIC/train_encoded.xlsx'
-    output_val = 'C:/Users/dvita/Desktop/TITANIC/val_encoded.xlsx'
-    output_test = 'C:/Users/dvita/Desktop/TITANIC/test_encoded.xlsx'
-
-    # Colonne da codificare
+    # === Colonne da codificare ===
     cols_to_encode = ['HomePlanet', 'Deck', 'Side', 'Group_size']
 
-    # One-Hot Encoding solo su queste colonne, con drop_first=True per evitare multicollinearità
+    # One-Hot Encoding con drop_first=True per evitare multicollinearità
     df_encoded = pd.get_dummies(combined_df[cols_to_encode], drop_first=True)
 
     # Rimuovo le colonne originali codificate
@@ -34,17 +29,18 @@ def encoding_statico(combined_df):
 
     # === Estrai i dataset codificati ===
     df_train_encoded = df_final[df_final['IsTrain'] == True]
-    df_val_encoded = df_final[df_final['IsValidation'] == True]
-    df_test_encoded = df_final[df_final['IsTest'] == True]
+    df_val_encoded   = df_final[df_final['IsValidation'] == True]
+    df_test_encoded  = df_final[df_final['IsTest'] == True]
 
-    # === Salva i dataset in CSV ===
+    # === Salva i dataset ===
     df_train_encoded.to_excel(output_train, index=False)
     df_val_encoded.to_excel(output_val, index=False)
     df_test_encoded.to_excel(output_test, index=False)
 
-    print(f"Train codificato salvato in: {output_train}")
-    print(f"Val codificato salvato in:   {output_val}")
-    print(f"Test codificato salvato in:  {output_test}")
+    print("\nFile salvati correttamente:")
+    print(f"   Train codificato -> {output_train}")
+    print(f"   Val codificato   -> {output_val}")
+    print(f"   Test codificato  -> {output_test}")
 
     return df_train_encoded, df_val_encoded, df_test_encoded
 
