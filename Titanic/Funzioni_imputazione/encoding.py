@@ -9,6 +9,8 @@ def encoding_statico(combined_df):
     Salva anche i tre dataset codificati in formato CSV.
     """
 
+    print(combined_df.columns)
+
     # === Percorsi output ===
     #output_train = 'C:/Users/Standard/Desktop/Titanic/Titanic/train_encoded.csv'
     #output_val = 'C:/Users/Standard/Desktop/Titanic/Titanic/val_encoded.csv'
@@ -31,9 +33,9 @@ def encoding_statico(combined_df):
     df_final = pd.concat([df_rest, df_encoded], axis=1)
 
     # === Estrai i dataset codificati ===
-    df_train_encoded = df_final[df_final['IsTrain'] == True].drop(columns=['IsTrain', 'IsValidation', 'IsTest'])
-    df_val_encoded = df_final[df_final['IsValidation'] == True].drop(columns=['IsTrain', 'IsValidation', 'IsTest'])
-    df_test_encoded = df_final[df_final['IsTest'] == True].drop(columns=['IsTrain', 'IsValidation', 'IsTest'])
+    df_train_encoded = df_final[df_final['IsTrain'] == True]
+    df_val_encoded = df_final[df_final['IsValidation'] == True]
+    df_test_encoded = df_final[df_final['IsTest'] == True]
 
     # === Salva i dataset in CSV ===
     df_train_encoded.to_excel(output_train, index=False)

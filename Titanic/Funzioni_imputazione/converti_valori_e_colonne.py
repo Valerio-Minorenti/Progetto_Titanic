@@ -2,14 +2,10 @@ import pandas as pd
 
 def converti_valori_colonne():
 
-    # === 1. Carica i file  Davide===
-    #train_df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
-    #val_df   = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/val_holdout.xlsx')
-    #test_df  = pd.read_csv('C:/Users/dvita/Desktop/TITANIC/test.csv')
-    # === 1. Carica i file VALERIO ===
-    train_df = pd.read_excel('C:/Users/Standard/Desktop/Titanic/Titanic/train_holdout.xlsx')
-    val_df   = pd.read_excel('C:/Users/Standard/Desktop/Titanic/Titanic/val_holdout.xlsx')
-    test_df  = pd.read_csv('C:/Users/Standard/Desktop/Titanic/Titanic/test.csv')
+    # === 1. Carica i file ===
+    train_df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
+    val_df   = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/val_holdout.xlsx')
+    test_df  = pd.read_csv('C:/Users/dvita/Desktop/TITANIC/test.csv')
 
     # === 2. Aggiungi flag identificativi ===
     train_df['IsTrain'] = True
@@ -58,6 +54,13 @@ def converti_valori_colonne():
     # Binarizza expendures
     combined_df['Expendures'] = combined_df['Expendures'] > expendures_median
 
+    # combined_df['AgeGroup'] = combined_df['Age'].apply(
+#     lambda age: 'Unknown' if pd.isna(age) else
+#                 '0-18' if age <= 18 else
+#                 '19-25' if age <= 25 else
+#                 '25+'
+# )
+
     # Drop colonne originali spese + Age se presente
     combined_df.drop(columns=spesa_cols, inplace=True)
     if 'Age' in combined_df.columns:
@@ -68,14 +71,10 @@ def converti_valori_colonne():
     new_val   = combined_df[combined_df['IsValidation']== True].copy()
     new_test  = combined_df[combined_df['IsTest']== True].copy()
 
-    # === 6. Salva i file finali davide ===
-    #new_train.to_excel('C:/Users/dvita/Desktop/TITANIC/train_df.xlsx', index=False)
-    #new_val.to_excel('C:/Users/dvita/Desktop/TITANIC/val_df.xlsx', index=False)
-    #new_test.to_excel('C:/Users/dvita/Desktop/TITANIC/test_df.xlsx', index=False)
-    # === 6. Salva i file finali valerio ===
-    new_train.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/train_df.xlsx', index=False)
-    new_val.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/val_df.xlsx', index=False)
-    new_test.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/test_df.xlsx', index=False)
+    # === 6. Salva i file finali ===
+    new_train.to_excel('C:/Users/dvita/Desktop/TITANIC/train_df.xlsx', index=False)
+    new_val.to_excel('C:/Users/dvita/Desktop/TITANIC/val_df.xlsx', index=False)
+    new_test.to_excel('C:/Users/dvita/Desktop/TITANIC/test_df.xlsx', index=False)
 
     print("File salvati correttamente.")
     return combined_df

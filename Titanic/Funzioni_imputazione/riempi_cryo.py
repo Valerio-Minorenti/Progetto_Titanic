@@ -13,6 +13,9 @@ def riempi_cryo(combined_df):
         moda_val = moda_cryo[0]
         combined_df['CryoSleep'] = combined_df['CryoSleep'].fillna(moda_val)
 
+    # Forza valori coerenti in CryoSleep
+    combined_df['CryoSleep'] = combined_df['CryoSleep'].map({True: 1, False: 0})  # oppure usa .astype(bool)
+
     # Conta valori mancanti DOPO
     cryo_nan_after = combined_df['CryoSleep'].isna().sum()
 

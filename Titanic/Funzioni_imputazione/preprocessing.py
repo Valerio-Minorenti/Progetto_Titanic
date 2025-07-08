@@ -2,10 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Ora carichi uno dei file di output per lavorare con il DataFrame DAVIDE
-#df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train_holdout.xlsx')
-# Ora carichi uno dei file di output per lavorare con il DataFrame VALERIO
-df = pd.read_excel('C:/Users/Standard/Desktop/Titanic/Titanic/train_holdout.xlsx')
+#df = pd.read_excel('C:/Users/Standard/Desktop/Titanic/Titanic/train_holdout.xlsx')
+
+# Ora carichi uno dei file di output per lavorare con il DataFrame
+df = pd.read_excel('C:/Users/dvita/Desktop/TITANIC/train.xlsx')
 
 # Nuova feature - Group (presupponendo che 'PassengerId' sia nel formato '123_45')
 df['Group'] = df['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
@@ -170,6 +170,33 @@ sns.histplot(data=df, x='Age', hue='Transported', binwidth=1, kde=True, palette=
 plt.title('Age distribution')
 plt.xlabel('Age (years)')
 plt.show()
+
+# # 1. Crea la colonna AgeGroup (senza funzione esterna)
+# df['AgeGroup'] = df['Age'].apply(
+#     lambda age: 'Unknown' if pd.isna(age) else
+#                 '0-18' if age <= 18 else
+#                 '19-25' if age <= 25 else
+#                 '25+'
+# )
+
+# # 2. Calcola le percentuali di 'Transported' per fascia d'età
+# age_group_stats = data.groupby('AgeGroup')['Transported'].value_counts(normalize=True).unstack().fillna(0) * 100
+# age_group_stats = age_group_stats.round(2)
+
+# # 3. Mostra la tabella in console
+# print("Percentuali di passeggeri 'Transported' per fascia d'età:\n")
+# print(age_group_stats)
+
+# # 4. Grafico a barre delle percentuali di 'True'
+# plt.figure(figsize=(8, 5))
+# age_group_stats[True].plot(kind='bar', color='lightblue')
+# plt.title("Percentuale di 'Transported = True' per fascia d'età")
+# plt.ylabel("Percentuale (%)")
+# plt.xlabel("Fascia d'età")
+# plt.xticks(rotation=0)
+# plt.ylim(0, 100)
+# plt.tight_layout()
+# plt.show()
 
 # Calcola il numero di HomePlanet unici per gruppo
 df_group_hp = df.groupby('Group')['HomePlanet'].nunique().reset_index(name='UniqueHomePlanets')
