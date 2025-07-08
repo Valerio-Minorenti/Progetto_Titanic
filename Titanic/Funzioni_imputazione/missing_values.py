@@ -14,12 +14,12 @@ def missing_values(combined_df):
     missing_per_column = df_check_before_drop.isna().sum()
     missing_per_column = missing_per_column[missing_per_column > 0]
 
-    print("📋 Valori mancanti per colonna (prima del drop, escluso 'Transported'):\n")
+    print("Valori mancanti per colonna (prima del drop, escluso 'Transported'):\n")
     if missing_per_column.empty:
-        print("✅ Nessun valore mancante trovato.")
+        print("Nessun valore mancante trovato.")
     else:
         print(missing_per_column.sort_values(ascending=False))
-        print(f"\n🧮 Totale valori mancanti nel DataFrame: {missing_per_column.sum()}")
+        print(f"\n Totale valori mancanti nel DataFrame: {missing_per_column.sum()}")
 
     # === 2. Suddivisione nei 3 subset ===
     train_df = combined_df[combined_df['IsTrain'] == True].copy()
@@ -29,7 +29,7 @@ def missing_values(combined_df):
     # === 3. Drop colonne inutili ===
     columns_to_drop = [
         'Group', 'Destination', 'VIP', 'Surname', 'CabinNum',
-        'NoSpending', 'IsTrain', 'IsValidation', 'IsTest'
+        'NoSpending'
     ]
 
     for df in [train_df, val_df, test_df]:
@@ -41,22 +41,21 @@ def missing_values(combined_df):
     num_campioni_con_missing = df_check_after_drop.isna().any(axis=1).sum()
     percentuale = num_campioni_con_missing / len(df_check_after_drop) * 100
 
-    print(f"\n🔍 Numero di campioni con almeno un valore mancante (dopo il drop): {num_campioni_con_missing}")
-    print(f"📊 Percentuale rispetto al totale: {percentuale:.2f}%")
+    print(f"\n Numero di campioni con almeno un valore mancante (dopo il drop): {num_campioni_con_missing}")
+    print(f"Percentuale rispetto al totale: {percentuale:.2f}%")
 
     # === 5. Drop campioni con valori mancanti ===
     combined_no_set = combined_no_set.dropna()
 
+    # === 5. Salvataggio ===
+    train_df.to_excel('C:/Users/dvita/Desktop/TITANIC/train_imputed.xlsx', index=False)
+    val_df.to_excel('C:/Users/dvita/Desktop/TITANIC/val_imputed.xlsx', index=False)
+    test_df.to_excel('C:/Users/dvita/Desktop/TITANIC/test_imputed.xlsx', index=False)
 
-    # === 5. Salvataggio DAVIDE ===
-    #train_df.to_excel('C:/Users/dvita/Desktop/TITANIC/train_imputed.xlsx', index=False)
-    #val_df.to_excel('C:/Users/dvita/Desktop/TITANIC/val_imputed.xlsx', index=False)
-    #test_df.to_excel('C:/Users/dvita/Desktop/TITANIC/test_imputed.xlsx', index=False)
-    # === 5. Salvataggio VALERIO ===
-    train_df.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/train_imputed.xlsx', index=False)
-    val_df.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/val_imputed.xlsx', index=False)
-    test_df.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/test_imputed.xlsx', index=False)
+    #train_df.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/train_imputed.xlsx', index=False)
+    #val_df.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/val_imputed.xlsx', index=False)
+    #test_df.to_excel('C:/Users/Standard/Desktop/Titanic/Titanic/test_imputed.xlsx', index=False)
 
-    print("✅ File salvati con successo.")
+    print("File salvati con successo.")
 
-    return train_df, val_df, test_df
+    return combined_df
