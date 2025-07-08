@@ -6,6 +6,13 @@ def riempi_cryo(combined_df):
     combined_df.loc[combined_df['CryoSleep'].isna() & (combined_df['NoSpending'] == True),  'CryoSleep'] = 1
     combined_df.loc[combined_df['CryoSleep'].isna() & (combined_df['Expendures'] == True), 'CryoSleep'] = 0
 
+        # Fill con la moda calcolata sul train per i rimanenti NaN
+    train_df = combined_df[combined_df['IsTrain'] == True]
+    moda_cryo = train_df['CryoSleep'].mode()
+    if not moda_cryo.empty:
+        moda_val = moda_cryo[0]
+        combined_df['CryoSleep'] = combined_df['CryoSleep'].fillna(moda_val)
+
     # Conta valori mancanti DOPO
     cryo_nan_after = combined_df['CryoSleep'].isna().sum()
 

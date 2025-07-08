@@ -11,14 +11,16 @@ def riempi_Surname(combined_df):
     # Conta valori mancanti PRIMA
     mancanti_prima = combined_df['Surname'].isna().sum()
 
+    train_df = combined_df[combined_df['IsTrain'] == True].copy()
+
     # === IMPUTAZIONE PER GRUPPO ===
     # Considera solo gruppi con più di una persona
-    gruppi_multipli = combined_df['Group'].value_counts()
+    gruppi_multipli = train_df['Group'].value_counts()
     gruppi_validi = gruppi_multipli[gruppi_multipli > 1].index
 
     # Costruisce mappa: Group → Surname (se univoco)
     surname_gruppo = (
-        combined_df[combined_df['Group'].isin(gruppi_validi)]
+        train_df[train_df['Group'].isin(gruppi_validi)]
         .dropna(subset=['Surname'])
         .groupby('Group')['Surname']
         .agg(lambda x: x.mode()[0] if x.nunique() == 1 else None)

@@ -4,26 +4,29 @@ def riempi_deck(combined_df):
     # === IMPUTAZIONE DECK ===
     CD_bef = combined_df['Deck'].isna().sum()
 
-    # Calcola il deck più frequente per ogni gruppo
-    GCD_gb = combined_df.groupby(['Group', 'Deck']).size().unstack(fill_value=0)
+    train_df = combined_df[combined_df['IsTrain'] == True].copy()
+
+    # Calcola la modalità del deck per ogni gruppo SOLO sul train
+    GCD_gb = train_df.groupby(['Group', 'Deck']).size().unstack(fill_value=0)
     deck_mode_per_group = GCD_gb.idxmax(axis=1)
 
-    # Imputa Deck per i gruppi con valore predominante
+    # Maschera per missing Deck nel combined_df
     deck_nan_mask = combined_df['Deck'].isna()
-    group_with_mode = combined_df.loc[deck_nan_mask, 'Group'].isin(deck_mode_per_group.index)
-    GCD_index = combined_df[deck_nan_mask & group_with_mode].index
-    combined_df.loc[GCD_index, 'Deck'] = combined_df.loc[GCD_index, 'Group'].map(deck_mode_per_group)
 
-    # Imputa i rimanenti NaN con il Deck meno usato (bilanciamento)
-    deck_counts = Counter(combined_df['Deck'].dropna())
-    for idx in combined_df[combined_df['Deck'].isna()].index:
-        min_count = min(deck_counts.values(), default=0)
-        least_used_decks = [deck for deck, count in deck_counts.items() if count == min_count]
-        chosen_deck = least_used_decks[0]
-        combined_df.at[idx, 'Deck'] = chosen_deck
-        deck_counts[chosen_deck] += 1
+    # Solo gruppi presenti in deck_mode_per_group (cioè con deck mode calcolato)
+    group_with_mode = combined_df.loc[deck_nan_mask, 'Group'].isin(deck_mode_per_group.index)
+
+    # Indici da imputare
+    GCD_index = combined_df[deck_nan_mask & group_with_mode].index
+
+    # Imputa Deck nei missing con la moda calcolata sul train
+    combined_df.loc[GCD_index, 'Deck'] = combined_df.loc[GCD_index, 'Group'].map(deck_mode_per_group)
+    
+    # Riempie i missing con 'T'
+    combined_df['Deck'].fillna('T', inplace=True)
 
     CD_aft = combined_df['Deck'].isna().sum()
+
     print(f"#Deck missing values before: {CD_bef}")
     print(f"#Deck missing values after:  {CD_aft}")
 

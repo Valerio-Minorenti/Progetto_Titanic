@@ -11,11 +11,15 @@ def riempi_Home_Planet(combined_df):
     mancanti_prima = combined_df['HomePlanet'].isna().sum()
 
     # === 1. IMPUTAZIONE PER GRUPPO ===
-    gruppi_multipli = combined_df['Group'].value_counts()
+    # --- Separa il training set ---
+    train_df = combined_df[combined_df['IsTrain'] == True].copy()
+
+# --- Costruisci la mappa Group → HomePlanet SOLO sul training ---
+    gruppi_multipli = train_df['Group'].value_counts()
     gruppi_validi = gruppi_multipli[gruppi_multipli > 1].index
 
     homeplanet_gruppo = (
-        combined_df[combined_df['Group'].isin(gruppi_validi)]
+        train_df[train_df['Group'].isin(gruppi_validi)]
         .dropna(subset=['HomePlanet'])
         .groupby('Group')['HomePlanet']
         .agg(lambda x: x.mode()[0] if x.nunique() == 1 else None)
@@ -23,11 +27,13 @@ def riempi_Home_Planet(combined_df):
         .to_dict()
     )
 
+    # --- Applica la mappa a tutto il dataset ---
     combined_df['HomePlanet'] = combined_df.apply(
-        lambda row: homeplanet_gruppo.get(row['Group'], None)
+        lambda row: homeplanet_gruppo.get(row['Group'], row['HomePlanet'])
         if pd.isna(row['HomePlanet']) else row['HomePlanet'],
         axis=1
     )
+
 
     # === 2. IMPUTAZIONE PER DECK ===
     cond_deck = combined_df['HomePlanet'].isna()
@@ -35,22 +41,28 @@ def riempi_Home_Planet(combined_df):
     combined_df.loc[cond_deck & (combined_df['Deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europa'
 
     # === 3. IMPUTAZIONE PER COGNOME ===
-    cond_surname = combined_df['HomePlanet'].isna()
 
-    # Mappa del cognome → HomePlanet più frequente
+# Costruisci la mappa cognome → HomePlanet solo dal train
     homeplanet_surname = (
-        combined_df.dropna(subset=['HomePlanet'])
+        train_df.dropna(subset=['HomePlanet'])
         .groupby('Surname')['HomePlanet']
         .agg(lambda x: x.mode()[0] if not x.mode().empty else None)
         .dropna()
         .to_dict()
     )
 
+    # Applica la mappa a tutto combined_df
     combined_df['HomePlanet'] = combined_df.apply(
         lambda row: homeplanet_surname.get(row['Surname'], row['HomePlanet'])
         if pd.isna(row['HomePlanet']) else row['HomePlanet'],
         axis=1
     )
+
+        # === 4. IMPUTAZIONE FINALE CON MODA SU TRAIN ===
+    moda_homeplanet = train_df['HomePlanet'].mode()
+    if not moda_homeplanet.empty:
+        moda_hp = moda_homeplanet[0]
+        combined_df['HomePlanet'] = combined_df['HomePlanet'].fillna(moda_hp)
 
     # Conta valori mancanti DOPO
     mancanti_dopo = combined_df['HomePlanet'].isna().sum()

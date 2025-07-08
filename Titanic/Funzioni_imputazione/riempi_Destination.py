@@ -5,11 +5,12 @@ def riempi_Destination(combined_df):
     mancanti_prima = combined_df['Destination'].isna().sum()
 
     # === 1. IMPUTAZIONE PER COGNOME ===
-    cond_surname = combined_df['Destination'].isna()
 
     # Mappa cognome → Destination più frequente
+    train_df = combined_df[combined_df['IsTrain'] == True].copy()
+
     destination_surname = (
-        combined_df.dropna(subset=['Destination'])
+        train_df.dropna(subset=['Destination'])
         .groupby('Surname')['Destination']
         .agg(lambda x: x.mode()[0] if not x.mode().empty else None)
         .dropna()
@@ -21,6 +22,7 @@ def riempi_Destination(combined_df):
         if pd.isna(row['Destination']) else row['Destination'],
         axis=1
     )
+
 
     # === 2. IMPUTAZIONE PER HomePlanet = Mars ===
     cond_mars = (combined_df['Destination'].isna()) & (combined_df['HomePlanet'] == 'Mars')
